@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Happy Birthday, Armi!</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Preconnect to Google Fonts for Performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Great+Vibes&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" defer></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+            script: ['"Great Vibes"', 'cursive'],
+            hand: ['"Caveat"', 'cursive'],
+          },
+          colors: {
+            emerald: {
+              950: '#02241c',
+              900: '#053e30',
+              800: '#085341',
+              700: '#0b6b54',
+              600: '#0f8a6c',
+              500: '#10b981',
+              400: '#34d399',
+            },
+            amber: {
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @keyframes flameFlicker {
+      0%, 100% {
+        transform: scale(1) rotate(-1deg);
+        filter: drop-shadow(0 0 7px #fbbf24) drop-shadow(0 0 14px rgba(245, 158, 11, 0.6));
+      }
+      25% {
+        transform: scale(1.08, 0.94) rotate(1.5deg);
+        filter: drop-shadow(0 0 10px #f59e0b) drop-shadow(0 0 18px rgba(251, 191, 36, 0.7));
+      }
+      50% {
+        transform: scale(0.95, 1.05) rotate(-1.5deg);
+        filter: drop-shadow(0 0 6px #fbbf24) drop-shadow(0 0 12px rgba(245, 158, 11, 0.5));
+      }
+      75% {
+        transform: scale(1.05, 0.98) rotate(1deg);
+        filter: drop-shadow(0 0 9px #fbbf24) drop-shadow(0 0 16px rgba(251, 191, 36, 0.7));
+      }
+    }
+    .flame-active {
+      animation: flameFlicker 0.75s ease-in-out infinite alternate;
+      transform-box: fill-box;
+      transform-origin: 50% 90%;
+      will-change: transform, filter;
+    }
+    .flame-extinguished {
+      opacity: 0 !important;
+      transform: scale(0.15) translateY(-8px) !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    @keyframes lighterSweep {
+      0% { transform: translate(-40px, 30px) rotate(-18deg); opacity: 0; }
+      20% { transform: translate(0px, 0px) rotate(0deg); opacity: 1; }
+      80% { transform: translate(130px, -10px) rotate(10deg); opacity: 1; }
+      100% { transform: translate(170px, -25px) rotate(22deg); opacity: 0; }
+    }
+    .lighter-action {
+      animation: lighterSweep 1.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    /* Highly Optimized Scrapbook Animation for PC and Mobile */
+    @keyframes scrapbookFade {
+      0% { opacity: 0; transform: scale(0.5) rotate(var(--rot-start)); }
+      15% { opacity: 0.9; transform: scale(1) rotate(var(--rot-mid)); }
+      85% { opacity: 0.9; transform: scale(1) rotate(var(--rot-mid)); }
+      100% { opacity: 0; transform: scale(0.5) rotate(var(--rot-end)); }
+    }
+
+    .scrapbook-photo {
+      animation: scrapbookFade 6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      will-change: opacity, transform;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+    }
+
+    body {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-[#02241c] via-[#053e30] to-[#02241c] min-h-screen text-slate-100 font-sans selection:bg-amber-400 selection:text-emerald-950 relative overflow-x-hidden">
+
+  <!-- Ambient Glows -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute top-10 left-5 w-56 h-56 sm:w-72 sm:h-72 bg-emerald-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-10 right-5 w-64 h-64 sm:w-80 sm:h-80 bg-amber-400/10 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- Dynamic Scrapbook Background Floating Container -->
+  <div id="scrapbookContainer" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+  <main class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-10 md:py-16 flex flex-col items-center gap-10 sm:gap-14 md:gap-20 pb-16">
+
+    <!-- Hero Section -->
+    <header class="text-center max-w-2xl flex flex-col items-center mt-4 sm:mt-0">
+      <h1 class="font-serif text-3xl xs:text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white mb-3">
+        Happy Birthday, 
+        <span class="font-script block sm:inline text-amber-400 text-5xl xs:text-6xl sm:text-7xl md:text-8xl drop-shadow">Bals!</span>
+      </h1>
+    </header>
+
+    <!-- Letter Section -->
+    <section id="letterSection" class="w-full max-w-sm sm:max-w-md pt-2">
+      <div class="text-center mb-4 sm:mb-5">
+        <p class="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-1">❤️</p>
+        <h2 class="font-serif text-2xl sm:text-3xl font-bold text-emerald-100">A Special Message</h2>
+      </div>
+
+      <div onclick="openLetterCard()" class="relative w-full cursor-pointer select-none group transition-transform duration-300 active:scale-95 sm:hover:scale-[1.02]">
+        <div class="relative w-full h-52 sm:h-64 rounded-2xl bg-gradient-to-b from-[#044c3b] to-[#022c22] border-2 border-emerald-500/40 shadow-2xl flex flex-col justify-between overflow-hidden">
+          <div class="absolute top-0 inset-x-0 h-28 sm:h-32 bg-[#065b47] border-b border-emerald-400/30 flex items-center justify-center shadow-md z-10" style="clip-path: polygon(0 0, 100% 0, 50% 100%);"></div>
+          <div class="absolute top-[78px] sm:top-[88px] left-1/2 -translate-x-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600 border-2 border-amber-100 shadow-xl flex items-center justify-center">
+            <i data-lucide="heart" class="w-5 h-5 text-emerald-950 fill-current"></i>
+          </div>
+          <div class="absolute bottom-0 inset-x-0 h-32 sm:h-36 bg-[#033b2e] border-t border-emerald-400/20 flex items-end justify-center pb-4 z-10" style="clip-path: polygon(0 50%, 50% 0, 100% 50%, 100% 100%, 0 100%);">
+            <span class="text-xs sm:text-sm text-amber-300 font-medium tracking-wide flex items-center gap-1.5 drop-shadow">
+              <i data-lucide="mail-open" class="w-4 h-4"></i> Tap to open your letter 💌
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Letter Modal -->
+    <div id="letterModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4 transition-opacity duration-300" onclick="closeLetterCard(event)">
+      <div id="letterContentBox" class="relative w-full max-w-lg bg-[#03291f] border-2 border-amber-400/50 rounded-2xl p-6 sm:p-10 shadow-2xl transform transition-all duration-300 scale-95" onclick="event.stopPropagation()">
+        <div class="space-y-4 text-emerald-100 font-hand text-xl sm:text-2xl leading-relaxed pt-2">
+          <p class="font-bold text-amber-300 text-2xl">Dear Armi,</p>
+          <p>Una sa lahat, binabati kita ng maligayang kaarawan. Alam ko marami tayong napagdaanan ngayong taon, maraming pagsubok ang dumaan sa ating dalawa. Lalo nagkasakit ako at naoperahan.</p>
+          <p>Ang gusto ko lang sabihin sa kaarawan mo ngayon ay, sana matupad ang mga hiling mo sa buhay.</p>
+          <div class="pt-6 text-right flex items-center justify-end gap-1.5 text-amber-300 font-script text-3xl sm:text-4xl">
+            <span>From Bals</span>
+            <span class="text-2xl text-rose-500">❤️</span>
+          </div>
+        </div>
+        <div class="mt-7 pt-4 border-t border-emerald-800/60 flex justify-center">
+          <button onclick="closeLetterCard()" class="px-6 py-2.5 rounded-full bg-emerald-900 hover:bg-emerald-800 text-emerald-200 border border-emerald-600/50 text-xs sm:text-sm font-sans tracking-wide transition-all active:scale-95">
+            Close & Fold Back
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cake Section -->
+    <section id="cakeSection" class="w-full flex flex-col items-center pt-2">
+      <div class="text-center mb-4 sm:mb-5">
+        <h2 class="font-serif text-2xl sm:text-3xl text-emerald-100 font-semibold mb-1">Make a Birthday Wish</h2>
+        <p id="cakeInstruction" class="text-emerald-300/80 text-xs sm:text-sm">Tap candles to blow them out, or ignite them again</p>
+      </div>
+
+      <div class="relative w-full max-w-md flex flex-col items-center select-none py-2 overflow-visible">
+        <div id="lighterVisual" class="hidden absolute z-30 pointer-events-none -top-2 left-6">
+          <div class="flex items-center gap-1.5 bg-zinc-900/95 px-3 py-1.5 rounded-lg border border-amber-400/50 shadow-2xl text-amber-300">
+            <i data-lucide="flame" class="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse"></i>
+            <span class="text-xs font-semibold">Lighting...</span>
+          </div>
+        </div>
+
+        <svg viewBox="0 0 380 340" class="w-full max-w-[340px] sm:max-w-[380px] drop-shadow-2xl overflow-visible" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="goldPlateGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#b28235" /><stop offset="25%" stop-color="#fde047" /><stop offset="50%" stop-color="#f59e0b" /><stop offset="85%" stop-color="#d97706" /><stop offset="100%" stop-color="#8f5d1a" />
+            </linearGradient>
+            <linearGradient id="plateRimGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#fef08a" /><stop offset="100%" stop-color="#b47c2a" />
+            </linearGradient>
+            <linearGradient id="bottomTierSponge" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#2a744e" /><stop offset="55%" stop-color="#1b5a3a" /><stop offset="100%" stop-color="#0f3b25" />
+            </linearGradient>
+            <linearGradient id="topTierSponge" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#3d8f63" /><stop offset="60%" stop-color="#27704b" /><stop offset="100%" stop-color="#164d32" />
+            </linearGradient>
+            <linearGradient id="creamGloss" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" /><stop offset="70%" stop-color="#faf8ea" /><stop offset="100%" stop-color="#e2f3e8" />
+            </linearGradient>
+            <linearGradient id="candleGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#a7f3d0" /><stop offset="50%" stop-color="#34d399" /><stop offset="100%" stop-color="#059669" />
+            </linearGradient>
+            <linearGradient id="candleGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#fef08a" /><stop offset="45%" stop-color="#6ee7b7" /><stop offset="100%" stop-color="#10b981" />
+            </linearGradient>
+            <radialGradient id="flameColor" cx="50%" cy="80%" r="50%">
+              <stop offset="0%" stop-color="#ffffff" /><stop offset="25%" stop-color="#fef08a" /><stop offset="65%" stop-color="#f59e0b" /><stop offset="100%" stop-color="#ef4444" />
+            </radialGradient>
+            <radialGradient id="floorShadow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(0, 0, 0, 0.65)" /><stop offset="100%" stop-color="rgba(0, 0, 0, 0)" />
+            </radialGradient>
+          </defs>
+
+          <ellipse cx="190" cy="326" rx="160" ry="12" fill="url(#floorShadow)" />
+          <path d="M 152 308 L 140 322 L 240 322 L 228 308 Z" fill="#694314" />
+          <ellipse cx="190" cy="322" rx="50" ry="5" fill="#4d300b" />
+          <ellipse cx="190" cy="308" rx="170" ry="16" fill="#8d5f1e" />
+          <rect x="20" y="303" width="340" height="6" fill="#754c15" />
+          <ellipse cx="190" cy="303" rx="170" ry="15" fill="url(#goldPlateGrad)" stroke="url(#plateRimGrad)" stroke-width="1.8" />
+          <ellipse cx="190" cy="302" rx="164" ry="13" fill="none" stroke="#ffffff" stroke-width="0.7" opacity="0.6" />
+          <ellipse cx="190" cy="298" rx="136" ry="10" fill="rgba(6, 28, 18, 0.75)" />
+
+          <path d="M 56 210 Q 190 236 324 210 L 324 286 Q 190 314 56 286 Z" fill="url(#bottomTierSponge)" />
+          <ellipse cx="190" cy="210" rx="134" ry="17" fill="#328559" />
+          <path d="M 56 210 Q 72 232, 90 213 Q 108 236, 128 214 Q 150 238, 170 215 Q 190 240, 210 215 Q 230 238, 252 214 Q 272 235, 290 213 Q 308 230, 324 210 Q 190 226, 56 210 Z" fill="url(#creamGloss)" />
+
+          <g>
+            <circle cx="76" cy="281" r="3.5" fill="#fef08a" stroke="#ffffff" stroke-width="0.8" />
+            <circle cx="104" cy="289" r="3.5" fill="#ffffff" />
+            <circle cx="134" cy="294" r="3.5" fill="#fef08a" stroke="#ffffff" stroke-width="0.8" />
+            <circle cx="164" cy="297" r="3.5" fill="#ffffff" />
+            <circle cx="190" cy="298" r="4" fill="#fef08a" stroke="#ffffff" stroke-width="1" />
+            <circle cx="216" cy="297" r="3.5" fill="#ffffff" />
+            <circle cx="246" cy="294" r="3.5" fill="#fef08a" stroke="#ffffff" stroke-width="0.8" />
+            <circle cx="276" cy="289" r="3.5" fill="#ffffff" />
+            <circle cx="304" cy="281" r="3.5" fill="#fef08a" stroke="#ffffff" stroke-width="0.8" />
+          </g>
+
+          <ellipse cx="190" cy="209" rx="88" ry="12" fill="rgba(8, 38, 25, 0.6)" />
+
+          <path d="M 105 145 Q 190 166 275 145 L 275 200 Q 190 222 105 200 Z" fill="url(#topTierSponge)" />
+          <ellipse cx="190" cy="145" rx="85" ry="14" fill="#50ad7d" />
+          <path d="M 105 145 Q 120 162, 136 148 Q 154 165, 172 149 Q 190 167, 208 149 Q 226 164, 244 148 Q 260 162, 275 145 Q 190 157, 105 145 Z" fill="url(#creamGloss)" />
+
+          <circle cx="114" cy="143" r="6" fill="url(#creamGloss)" />
+          <circle cx="114" cy="140" r="4" fill="#ffffff" />
+          <circle cx="148" cy="150" r="6.5" fill="url(#creamGloss)" />
+          <circle cx="148" cy="147" r="4" fill="#ffffff" />
+          <circle cx="190" cy="152" r="7" fill="url(#creamGloss)" />
+          <circle cx="190" cy="148" r="4.5" fill="#ffffff" />
+          <circle cx="232" cy="150" r="6.5" fill="url(#creamGloss)" />
+          <circle cx="232" cy="147" r="4" fill="#ffffff" />
+          <circle cx="266" cy="143" r="6" fill="url(#creamGloss)" />
+          <circle cx="266" cy="140" r="4" fill="#ffffff" />
+
+          <g>
+            <text x="190" y="244" text-anchor="middle" font-family="'Great Vibes', cursive" font-size="31" fill="#021f18" stroke="#021f18" stroke-width="3" stroke-linejoin="round">Happy Birthday</text>
+            <text x="190" y="274" text-anchor="middle" font-family="'Great Vibes', cursive" font-size="38" fill="#021f18" stroke="#021f18" stroke-width="3.5" stroke-linejoin="round">Bals</text>
+            <text x="190" y="244" text-anchor="middle" font-family="'Great Vibes', cursive" font-size="31" fill="#fef08a">Happy Birthday</text>
+            <text x="190" y="274" text-anchor="middle" font-family="'Great Vibes', cursive" font-size="38" fill="#fcd34d" font-weight="bold">Bals</text>
+          </g>
+
+          <!-- 5 Candles -->
+          <g id="svgCandle-0" class="cursor-pointer group" onclick="extinguishSingleCandle(0)">
+            <ellipse cx="132" cy="144" rx="7" ry="3.5" fill="#ffffff" opacity="0.95" />
+            <rect x="123" y="85" width="18" height="60" fill="transparent" />
+            <rect x="128.5" y="96" width="7" height="48" rx="2" fill="url(#candleGrad1)" stroke="#ffffff" stroke-width="0.6" />
+            <line x1="132" y1="96" x2="132" y2="88" stroke="#374151" stroke-width="1.4" stroke-linecap="round" />
+            <path id="svgFlame-0" class="flame-active" d="M 132 89 C 127 84, 127 75, 132 68 C 137 75, 137 84, 132 89 Z" fill="url(#flameColor)" />
+          </g>
+
+          <g id="svgCandle-1" class="cursor-pointer group" onclick="extinguishSingleCandle(1)">
+            <ellipse cx="161" cy="146" rx="7" ry="3.5" fill="#ffffff" opacity="0.95" />
+            <rect x="152" y="80" width="18" height="66" fill="transparent" />
+            <rect x="157.5" y="90" width="7" height="56" rx="2" fill="url(#candleGrad2)" stroke="#ffffff" stroke-width="0.6" />
+            <line x1="161" y1="90" x2="161" y2="82" stroke="#374151" stroke-width="1.4" stroke-linecap="round" />
+            <path id="svgFlame-1" class="flame-active" d="M 161 83 C 156 78, 156 68, 161 61 C 166 68, 166 78, 161 83 Z" fill="url(#flameColor)" />
+          </g>
+
+          <g id="svgCandle-2" class="cursor-pointer group" onclick="extinguishSingleCandle(2)">
+            <ellipse cx="190" cy="148" rx="8" ry="4" fill="#ffffff" opacity="0.95" />
+            <rect x="181" y="72" width="18" height="76" fill="transparent" />
+            <rect x="186" y="84" width="8" height="64" rx="2.5" fill="url(#candleGrad1)" stroke="#fef08a" stroke-width="0.8" />
+            <line x1="190" y1="84" x2="190" y2="75" stroke="#374151" stroke-width="1.5" stroke-linecap="round" />
+            <path id="svgFlame-2" class="flame-active" d="M 190 76 C 184 70, 184 59, 190 51 C 196 59, 196 70, 190 76 Z" fill="url(#flameColor)" />
+          </g>
+
+          <g id="svgCandle-3" class="cursor-pointer group" onclick="extinguishSingleCandle(3)">
+            <ellipse cx="219" cy="146" rx="7" ry="3.5" fill="#ffffff" opacity="0.95" />
+            <rect x="210" y="80" width="18" height="66" fill="transparent" />
+            <rect x="215.5" y="90" width="7" height="56" rx="2" fill="url(#candleGrad2)" stroke="#ffffff" stroke-width="0.6" />
+            <line x1="219" y1="90" x2="219" y2="82" stroke="#374151" stroke-width="1.4" stroke-linecap="round" />
+            <path id="svgFlame-3" class="flame-active" d="M 219 83 C 214 78, 214 68, 219 61 C 224 68, 224 78, 219 83 Z" fill="url(#flameColor)" />
+          </g>
+
+          <g id="svgCandle-4" class="cursor-pointer group" onclick="extinguishSingleCandle(4)">
+            <ellipse cx="248" cy="144" rx="7" ry="3.5" fill="#ffffff" opacity="0.95" />
+            <rect x="239" y="85" width="18" height="60" fill="transparent" />
+            <rect x="244.5" y="96" width="7" height="48" rx="2" fill="url(#candleGrad1)" stroke="#ffffff" stroke-width="0.6" />
+            <line x1="248" y1="96" x2="248" y2="88" stroke="#374151" stroke-width="1.4" stroke-linecap="round" />
+            <path id="svgFlame-4" class="flame-active" d="M 248 89 C 243 84, 243 75, 248 68 C 253 75, 253 84, 248 89 Z" fill="url(#flameColor)" />
+          </g>
+        </svg>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
+        <button id="blowCandlesBtn" onclick="blowAllCandles()" class="px-5 py-2.5 rounded-full bg-emerald-800 hover:bg-emerald-700 text-amber-300 border border-emerald-500/60 font-medium text-xs sm:text-sm transition-all shadow active:scale-95 flex items-center gap-2">
+          <i data-lucide="wind" class="w-4 h-4 text-emerald-300"></i>
+          <span>Blow Out Candles</span>
+        </button>
+
+        <button id="igniteCandlesBtn" onclick="igniteCandlesWithLighter()" class="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-emerald-950 font-semibold text-xs sm:text-sm transition-all shadow active:scale-95 flex items-center gap-2">
+          <i data-lucide="flame" class="w-4 h-4 text-emerald-950"></i>
+          <span>Ignite Candles</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Script Engine -->
+  <script>
+    // =================================================
+    // ✏️ EDIT HERE: YOUR 10 SCRAPBOOK BACKGROUND PHOTOS
+    // =================================================
+    const SCRAPBOOK_PHOTOS = [
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=600&q=80"
+    ];
+
+    let photoPool = [];
+
+    function getSmartRandomPhoto() {
+      if (photoPool.length === 0) {
+        photoPool = [...SCRAPBOOK_PHOTOS];
+        for (let i = photoPool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [photoPool[i], photoPool[j]] = [photoPool[j], photoPool[i]];
+        }
+      }
+      return photoPool.pop();
+    }
+
+    function spawnScrapbookPhoto() {
+      const container = document.getElementById('scrapbookContainer');
+      if (!container || SCRAPBOOK_PHOTOS.length === 0) return;
+
+      const card = document.createElement('div');
+      card.className = "absolute scrapbook-photo bg-white p-3.5 pb-9 rounded-lg shadow-2xl border border-stone-300/40 pointer-events-none";
+      
+      const isLeft = Math.random() > 0.5;
+      const posX = isLeft ? (Math.random() * 8) : (60 + Math.random() * 12);
+      const posY = 15 + Math.random() * 55;
+      
+      card.style.left = `${posX}%`;
+      card.style.top = `${posY}%`;
+
+      const rotStart = (Math.random() - 0.5) * 16;
+      const rotMid = (Math.random() - 0.5) * 10;
+      const rotEnd = (Math.random() - 0.5) * 20;
+      card.style.setProperty('--rot-start', `${rotStart}deg`);
+      card.style.setProperty('--rot-mid', `${rotMid}deg`);
+      card.style.setProperty('--rot-end', `${rotEnd}deg`);
+
+      const randomImg = getSmartRandomPhoto();
+
+      card.innerHTML = `
+        <div class="w-36 xs:w-44 sm:w-52 aspect-square overflow-hidden rounded bg-stone-100">
+          <img src="${randomImg}" class="w-full h-full object-cover" />
+        </div>
+      `;
+
+      container.appendChild(card);
+
+      setTimeout(() => {
+        card.remove();
+      }, 6000);
+    }
+
+    setInterval(spawnScrapbookPhoto, 3200);
+
+    const CAKE_CANDLES_COUNT = 5;
+    let candlesLitState = new Array(CAKE_CANDLES_COUNT).fill(true);
+    let isMusicPlaying = false;
+    let audioCtx = null;
+    let melodyTimer = null;
+    let noteIndex = 0;
+
+    const BIRTHDAY_NOTES = [
+      { f: 261.63, d: 0.3, pause: 350 }, { f: 261.63, d: 0.2, pause: 250 },
+      { f: 293.66, d: 0.5, pause: 550 }, { f: 261.63, d: 0.5, pause: 550 },
+      { f: 349.23, d: 0.5, pause: 550 }, { f: 329.63, d: 0.9, pause: 900 },
+      { f: 261.63, d: 0.3, pause: 350 }, { f: 261.63, d: 0.2, pause: 250 },
+      { f: 293.66, d: 0.5, pause: 550 }, { f: 261.63, d: 0.5, pause: 550 },
+      { f: 392.00, d: 0.5, pause: 550 }, { f: 349.23, d: 0.9, pause: 900 },
+      { f: 261.63, d: 0.3, pause: 350 }, { f: 261.63, d: 0.2, pause: 250 },
+      { f: 523.25, d: 0.5, pause: 550 }, { f: 440.00, d: 0.5, pause: 550 },
+      { f: 349.23, d: 0.5, pause: 550 }, { f: 329.63, d: 0.5, pause: 550 },
+      { f: 293.66, d: 0.8, pause: 800 }, { f: 466.16, d: 0.3, pause: 350 },
+      { f: 466.16, d: 0.2, pause: 250 }, { f: 440.00, d: 0.5, pause: 550 },
+      { f: 349.23, d: 0.5, pause: 550 }, { f: 392.00, d: 0.5, pause: 550 },
+      { f: 349.23, d: 1.2, pause: 1400 }
+    ];
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, duration, type = 'triangle') {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function runMelody() {
+      if (!isMusicPlaying) return;
+      const note = BIRTHDAY_NOTES[noteIndex];
+      playTone(note.f, note.d);
+      noteIndex = (noteIndex + 1) % BIRTHDAY_NOTES.length;
+      melodyTimer = setTimeout(runMelody, note.pause);
+    }
+
+    function startMusic() {
+      initAudio();
+      if (isMusicPlaying) return;
+      isMusicPlaying = true;
+      runMelody();
+    }
+
+    function extinguishSingleCandle(index) {
+      if (!candlesLitState.some(Boolean)) {
+        showCakeMessage("No candles are lit! Ignite them first ✨");
+        return;
+      }
+
+      const flame = document.getElementById(`svgFlame-${index}`);
+      if (!flame || flame.classList.contains('flame-extinguished')) return;
+
+      flame.classList.add('flame-extinguished');
+      candlesLitState[index] = false;
+
+      initAudio();
+      playTone(587.33, 0.1);
+
+      if (!candlesLitState.some(Boolean)) {
+        showCakeMessage("All candles blown out! Make a wish! 🌟");
+        triggerGrandConfetti();
+      } else {
+        showCakeMessage("Tap candles to blow them out, or ignite them again");
+      }
+    }
+
+    function blowAllCandles() {
+      if (!candlesLitState.some(Boolean)) {
+        showCakeMessage("Candles are already out! Click 'Ignite Candles' first 🔥");
+        return;
+      }
+
+      for (let i = 0; i < CAKE_CANDLES_COUNT; i++) {
+        const flame = document.getElementById(`svgFlame-${i}`);
+        if (flame) flame.classList.add('flame-extinguished');
+        candlesLitState[i] = false;
+      }
+      initAudio();
+      playTone(440, 0.2);
+      showCakeMessage("All candles blown out! Make a wish! 🌟");
+      triggerGrandConfetti();
+    }
+
+    function igniteCandlesWithLighter() {
+      const lighter = document.getElementById('lighterVisual');
+      lighter.classList.remove('hidden');
+      lighter.classList.remove('lighter-action');
+      void lighter.offsetWidth;
+      lighter.classList.add('lighter-action');
+
+      initAudio();
+      playTone(700, 0.08, 'sawtooth');
+      setTimeout(() => playTone(523.25, 0.2, 'sine'), 150);
+
+      for (let i = 0; i < CAKE_CANDLES_COUNT; i++) {
+        setTimeout(() => {
+          const flame = document.getElementById(`svgFlame-${i}`);
+          if (flame) {
+            flame.classList.remove('flame-extinguished');
+            candlesLitState[i] = true;
+          }
+        }, 150 + (i * 90));
+      }
+
+      setTimeout(() => {
+        lighter.classList.add('hidden');
+        showCakeMessage("Tap candles to blow them out, or ignite them again");
+      }, 1300);
+    }
+
+    function showCakeMessage(msg) {
+      const instructionEl = document.getElementById('cakeInstruction');
+      if (instructionEl) {
+        instructionEl.innerText = msg;
+      }
+    }
+
+    function triggerGrandConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 120,
+          spread: 85,
+          origin: { y: 0.6 },
+          colors: ['#fbbf24', '#f59e0b', '#10b981', '#059669', '#ffffff']
+        });
+      }
+    }
+
+    function openLetterCard() {
+      const modal = document.getElementById('letterModal');
+      const box = document.getElementById('letterContentBox');
+      
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      setTimeout(() => {
+        box.classList.remove('scale-95');
+        box.classList.add('scale-100');
+      }, 10);
+
+      initAudio();
+      playTone(659.25, 0.15, 'sine');
+    }
+
+    function closeLetterCard() {
+      const modal = document.getElementById('letterModal');
+      const box = document.getElementById('letterContentBox');
+
+      box.classList.remove('scale-100');
+      box.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+      }, 200);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      spawnScrapbookPhoto();
+      setTimeout(spawnScrapbookPhoto, 1200);
+
+      // Auto-start birthday synth music upon first screen interaction
+      const userInteractionPlay = () => {
+        if (!isMusicPlaying) {
+          startMusic();
+        }
+        window.removeEventListener('click', userInteractionPlay);
+        window.removeEventListener('touchstart', userInteractionPlay);
+      };
+      window.addEventListener('click', userInteractionPlay);
+      window.addEventListener('touchstart', userInteractionPlay);
+    });
+  </script>
+</body>
+</html>
